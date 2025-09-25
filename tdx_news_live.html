@@ -375,6 +375,10 @@
             updateTime();
             setupInfiniteScroll();
             
+            // 初始化时显示所有数据，禁用无限滚动
+            hasMoreData = false;
+            document.getElementById('no-more-data').style.display = 'block';
+            
             // 设置自动刷新检查
             document.getElementById('auto-refresh').addEventListener('change', function() {
                 toggleAutoRefresh();
@@ -800,8 +804,8 @@
                 // 模拟加载延迟
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
-                // 这里可以添加实际加载更多数据的逻辑
-                // 目前一次性加载所有数据，所以显示无更多数据
+                // 由于我们一次性加载所有数据，所以直接显示所有数据
+                // 不需要无限滚动，因为所有数据已经加载完成
                 hasMoreData = false;
                 document.getElementById('no-more-data').style.display = 'block';
                 document.getElementById('loading-more').style.display = 'none';
