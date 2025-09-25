@@ -42,6 +42,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add tdx_all_news.db tdx_all_news_export.csv
         git commit -m "Auto update: News data $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
+        git pull --rebase origin main
         git push
         
     - name: Upload database as artifact
