@@ -6,11 +6,13 @@ __pycache__/
 
 # 数据库文件（GitHub Actions会自动生成）
 *.db
+!tdx_all_news.db
 *.sqlite
 *.sqlite3
 
 # 数据导出文件（GitHub Actions会自动生成）
 *.csv
+!tdx_all_news_export.csv
 *.xlsx
 
 # 日志文件
