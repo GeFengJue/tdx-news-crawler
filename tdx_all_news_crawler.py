@@ -230,6 +230,10 @@ class TDXAllNewsCrawler:
         
         conn.commit()
         return total_inserted
+
+    def save_all_data_incremental(self, conn, all_data):
+        """增量保存数据到数据库（与save_all_data相同，但名称更清晰）"""
+        return self.save_all_data(conn, all_data)
     
     def display_top_news(self, conn, limit=50):
         """显示前N条新闻"""

@@ -26,7 +26,7 @@ def main():
             print("❌ 会话初始化失败")
             return 1
         
-        # 创建数据库连接
+        # 创建数据库连接（增量更新模式）
         conn = crawler.create_database('tdx_all_news.db')
         
         # 获取新闻数据（获取前3页，每页50条）
@@ -41,9 +41,9 @@ def main():
                 break
         
         if all_data:
-            # 保存数据到数据库
+            # 增量保存数据到数据库（避免重复）
             saved_count = crawler.save_all_data(conn, all_data)
-            print(f"✅ 成功保存 {saved_count} 条数据到数据库")
+            print(f"✅ 成功保存 {saved_count} 条数据到数据库（增量更新）")
             
             # 导出为CSV文件
             export_to_csv(conn)
@@ -95,7 +95,6 @@ def export_to_json(conn):
         SELECT record_id, title, issue_date, summary, source, mark_id
         FROM all_stock_news 
         ORDER BY issue_date DESC
-        LIMIT 200
         ''')
         
         data = cursor.fetchall()
@@ -125,7 +124,7 @@ def export_to_json(conn):
         with open('latest_news.json', 'w', encoding='utf-8') as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
         
-        print(f"📄 数据已导出到JSON文件，共 {len(news_list)} 条记录")
+        print(f"📄 数据已导出到JSON文件，共 {len(news_list)} 条记录（包含所有历史数据）")
         
     except Exception as e:
         print(f"❌ JSON导出失败: {e}")
