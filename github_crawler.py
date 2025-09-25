@@ -48,6 +48,9 @@ def main():
             # 导出为CSV文件
             export_to_csv(conn)
             
+            # 导出为JSON文件供网站使用
+            export_to_json(conn)
+            
             # 显示统计信息
             show_statistics(conn)
         else:
@@ -83,6 +86,49 @@ def export_to_csv(conn):
         
     except Exception as e:
         print(f"❌ CSV导出失败: {e}")
+
+def export_to_json(conn):
+    """导出数据库为JSON文件供网站使用"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+        SELECT record_id, title, issue_date, summary, source, mark_id
+        FROM all_stock_news 
+        ORDER BY issue_date DESC
+        LIMIT 200
+        ''')
+        
+        data = cursor.fetchall()
+        
+        # 转换为网站需要的格式
+        news_list = []
+        for record in data:
+            news_list.append({
+                'id': record[0],
+                'title': record[1],
+                'date': record[2],
+                'time': record[2].split(' ')[1] if record[2] and ' ' in record[2] else '--:--:--',
+                'content': record[3] or record[1],
+                'source': record[4] or '未知来源',
+                'highlight': record[5] == 1
+            })
+        
+        # 生成JSON文件
+        import json
+        json_data = {
+            'success': True,
+            'data': news_list,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'count': len(news_list)
+        }
+        
+        with open('latest_news.json', 'w', encoding='utf-8') as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+        
+        print(f"📄 数据已导出到JSON文件，共 {len(news_list)} 条记录")
+        
+    except Exception as e:
+        print(f"❌ JSON导出失败: {e}")
 
 def show_statistics(conn):
     """显示统计信息"""

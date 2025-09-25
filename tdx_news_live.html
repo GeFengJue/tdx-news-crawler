@@ -384,7 +384,7 @@
         // 加载新闻数据（支持多种数据源）
         async function loadNewsData() {
             try {
-                // 尝试从GitHub Pages的JSON文件加载
+                // 优先从JSON文件加载
                 const response = await fetch(JSON_DATA_URL);
                 const result = await response.json();
                 
@@ -396,7 +396,7 @@
                         title: item.title || '无标题',
                         content: item.content || item.title || '无内容',
                         source: item.source || '未知来源',
-                        highlight: false, // JSON数据中没有highlight标记
+                        highlight: item.highlight || false,
                         date: item.date || '未知时间',
                         dateOnly: item.date ? item.date.split(' ')[0] : '未知日期'
                     }));
@@ -407,19 +407,20 @@
                     currentNews = allNews;
                     renderNewsByDate(currentNews);
                     setupInfiniteScroll();
+                    console.log(`✅ 从JSON文件加载了 ${allNews.length} 条新闻数据`);
                     return;
                 }
             } catch (error) {
-                console.log('GitHub Pages数据加载失败，尝试API:', error);
+                console.log('JSON文件加载失败，尝试API:', error);
             }
             
+            // 如果JSON文件不存在，尝试从本地API加载
             try {
-                // 尝试从本地API加载
                 const response = await fetch(`${API_BASE_URL}/news?limit=1000`);
                 const result = await response.json();
                 
                 if (result.success && result.data) {
-                    // 转换API数据格式 - 时间精确到秒
+                    // 转换API数据格式
                     allNews = result.data.map(item => ({
                         id: item.id,
                         time: item.issue_date ? item.issue_date.split(' ')[1] : '--:--:--',
@@ -431,12 +432,11 @@
                         dateOnly: item.issue_date ? item.issue_date.split(' ')[0] : '未知日期'
                     }));
                     
-                    // 按日期排序（最新的在前）
                     allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
-                    
                     currentNews = allNews;
                     renderNewsByDate(currentNews);
                     setupInfiniteScroll();
+                    console.log(`✅ 从API加载了 ${allNews.length} 条新闻数据`);
                     return;
                 }
             } catch (error) {
@@ -449,6 +449,7 @@
             currentNews = allNews;
             renderNewsByDate(currentNews);
             setupInfiniteScroll();
+            console.log(`⚠️ 使用模拟数据，共 ${allNews.length} 条新闻`);
         }
 
         // 生成模拟新闻数据

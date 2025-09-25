@@ -40,7 +40,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add tdx_all_news.db tdx_all_news_export.csv
+        git add tdx_all_news.db tdx_all_news_export.csv latest_news.json
         git commit -m "Auto update: News data $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
         git pull --rebase origin main
         git push
@@ -52,4 +52,5 @@ jobs:
         path: |
           tdx_all_news.db
           tdx_all_news_export.csv
+          latest_news.json
         retention-days: 7
