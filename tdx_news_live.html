@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洞察NEWS—要闻直播</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: normal;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .filter-bar {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .filter-select {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-input {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 200px;
+            font-size: 12px;
+        }
+        
+        .news-list {
+            padding: 0;
+        }
+        
+        .news-item {
+            padding: 4px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 28px;
+            align-items: center;
+        }
+        
+        .news-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .news-item.expanded {
+            padding: 12px 20px;
+            background-color: #fafafa;
+        }
+        
+        .news-date-div {
+            display: flex;
+            align-items: center;
+            min-width: 60px;
+            justify-content: center;
+        }
+        
+        .news-date-line {
+            width: 2px;
+            background: #e0e0e0;
+            flex: 1;
+            margin: 5px 0;
+        }
+        
+        .news-date-txt {
+            font-size: 12px;
+            color: #999;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
+            line-height: 18px;
+        }
+        
+        .news-cont {
+            flex: 1;
+        }
+        
+        .news-title {
+            box-sizing: border-box;
+            color: #333;
+            color-scheme: light;
+            font-family: PingFangSC-Regular, "PingFang SC", Avenir, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18px;
+            text-size-adjust: 100%;
+            unicode-bidi: isolate;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            text-align: left;
+            flex: 1;
+            max-width: none;
+        }
+        
+        .news-highlight .news-title {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .news-title-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            margin-bottom: 1px;
+            text-align: left;
+            margin-top: 4px;
+        }
+        
+        .news-src {
+            font-size: 12px;
+            color: #666;
+            background: #f5f5f5;
+            padding: 1px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        
+        .news-summary {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.4;
+            margin-top: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            display: block;
+        }
+        
+        .news-item.expanded .news-summary {
+            max-height: 200px;
+            padding: 5px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .refresh-checkbox {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .date-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .date-label {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .date-input {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .date-group {
+            margin-bottom: 15px;
+        }
+        
+        .date-header {
+            background: #f5f5f5;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .loading-more {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .no-more-data {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>洞察NEWS·抢先版</h2>
+            <div class="header-controls">
+                <button class="btn" onclick="toggleAutoRefresh()">
+                    <span id="refresh-status">自动刷新: 关</span>
+                </button>
+                <button class="btn" onclick="refreshNews()">手动刷新</button>
+                <button class="btn" onclick="exportData()">导出数据</button>
+                <button class="btn" onclick="showSettings()">设置</button>
+            </div>
+        </div>
+        
+        <div class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label">日期选择:</span>
+                <input type="date" class="filter-select" id="date-selector" onchange="filterByDate()">
+                <button class="btn" onclick="goToToday()" style="background: #666; color: white; font-size: 12px; padding: 4px 8px;">今日</button>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">来源:</span>
+                <select class="filter-select" id="source-filter" onchange="filterNews()">
+                    <option value="all">全部来源</option>
+                    <option value="财联社">财联社</option>
+                    <option value="格隆汇">格隆汇</option>
+                    <option value="上交所">上交所</option>
+                    <option value="深交所">深交所</option>
+                    <option value="智通财经">智通财经</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">重要性:</span>
+                <select class="filter-select" id="importance-filter" onchange="filterNews()">
+                    <option value="all">全部</option>
+                    <option value="highlight">重要</option>
+                    <option value="normal">一般</option>
+                </select>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-input" placeholder="搜索新闻标题..." onkeyup="searchNews()">
+                <button class="btn" onclick="clearSearch()" style="background: #666; color: white;">清除</button>
+            </div>
+            
+            <div class="auto-refresh">
+                <input type="checkbox" class="refresh-checkbox" id="auto-refresh">
+                <span class="filter-label">自动刷新(30秒)</span>
+            </div>
+        </div>
+        
+        <div class="news-list" id="news-list">
+            <div class="loading">正在加载新闻...</div>
+        </div>
+        
+        <div id="loading-more" class="loading-more" style="display: none;">
+            正在加载更多新闻...
+        </div>
+        
+        <div id="no-more-data" class="no-more-data" style="display: none;">
+            已加载全部新闻数据
+        </div>
+        
+        <div class="footer">
+            <p>数据来源: 要闻直播 • 更新时间: <span id="update-time">--</span></p>
+            <p>© 2025 TDX要闻直播系统</p>
+        </div>
+    </div>
+
+    <script>
+        // 数据源配置
+        const DATA_SOURCE_TYPE = 'github-pages'; // 'local-api' 或 'github-pages'
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const JSON_DATA_URL = './latest_news.json';
+        let allNews = [];
+        let currentNews = [];
+        let autoRefreshInterval = null;
+        let isLoading = false;
+        let hasMoreData = true;
+        let currentOffset = 0;
+        const LOAD_SIZE = 100;
+
+        // 初始化页面
+        async function initPage() {
+            await loadNewsData();
+            await loadSourcesFromAPI();
+            updateTime();
+            setupInfiniteScroll();
+            
+            // 设置自动刷新检查
+            document.getElementById('auto-refresh').addEventListener('change', function() {
+                toggleAutoRefresh();
+            });
+        }
+
+        // 加载新闻数据（支持多种数据源）
+        async function loadNewsData() {
+            try {
+                // 尝试从GitHub Pages的JSON文件加载
+                const response = await fetch(JSON_DATA_URL);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // 转换JSON数据格式
+                    allNews = result.data.map(item => ({
+                        id: item.id,
+                        time: item.time || '--:--:--',
+                        title: item.title || '无标题',
+                        content: item.content || item.title || '无内容',
+                        source: item.source || '未知来源',
+                        highlight: false, // JSON数据中没有highlight标记
+                        date: item.date || '未知时间',
+                        dateOnly: item.date ? item.date.split(' ')[0] : '未知日期'
+                    }));
+                    
+                    // 按日期排序（最新的在前）
+                    allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    currentNews = allNews;
+                    renderNewsByDate(currentNews);
+                    setupInfiniteScroll();
+                    return;
+                }
+            } catch (error) {
+                console.log('GitHub Pages数据加载失败，尝试API:', error);
+            }
+            
+            try {
+                // 尝试从本地API加载
+                const response = await fetch(`${API_BASE_URL}/news?limit=1000`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // 转换API数据格式 - 时间精确到秒
+                    allNews = result.data.map(item => ({
+                        id: item.id,
+                        time: item.issue_date ? item.issue_date.split(' ')[1] : '--:--:--',
+                        title: item.title || '无标题',
+                        content: item.summary || item.title || '无内容',
+                        source: item.source || '未知来源',
+                        highlight: item.mark_id === 1,
+                        date: item.issue_date || '未知时间',
+                        dateOnly: item.issue_date ? item.issue_date.split(' ')[0] : '未知日期'
+                    }));
+                    
+                    // 按日期排序（最新的在前）
+                    allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    currentNews = allNews;
+                    renderNewsByDate(currentNews);
+                    setupInfiniteScroll();
+                    return;
+                }
+            } catch (error) {
+                console.error('API数据加载失败:', error);
+            }
+            
+            // 如果所有数据源都失败，使用模拟数据
+            console.log('使用模拟数据');
+            allNews = generateMockData();
+            currentNews = allNews;
+            renderNewsByDate(currentNews);
+            setupInfiniteScroll();
+        }
+
+        // 生成模拟新闻数据
+        function generateMockData() {
+            const sources = ['财联社', '格隆汇', '上交所', '深交所', '智通财经'];
+            const mockTitles = [
+                'A股三大指数集体高开，沪指涨0.3%',
+                '央行开展1000亿元MLF操作，利率保持不变',
+                '科技股表现强势，创业板指涨超1%',
+                '人民币汇率稳定在6.85附近波动',
+                '新能源板块持续走强，多只个股涨停',
+                '北向资金净流入超50亿元',
+                '房地产政策优化，市场预期改善',
+                '消费电子行业迎来复苏信号',
+                '医药板块调整，创新药企受关注',
+                '金融科技监管政策逐步明朗'
+            ];
+            
+            const mockContent = [
+                '今日A股市场表现积极，主要指数均实现上涨，市场情绪回暖。',
+                '央行货币政策保持稳健，流动性合理充裕，支持实体经济恢复。',
+                '科技板块成为市场亮点，人工智能、半导体等细分领域表现突出。',
+                '汇率市场保持稳定，为外贸企业提供良好经营环境。',
+                '新能源行业政策支持力度加大，产业链上下游协同发展。',
+                '外资持续看好中国市场，长期投资价值凸显。',
+                '房地产市场政策优化效果显现，刚需和改善性需求得到释放。',
+                '消费电子行业创新不断，新产品发布带动产业链复苏。',
+                '医药行业结构调整，创新研发成为核心竞争力。',
+                '金融科技监管框架完善，行业规范发展前景可期。'
+            ];
+            
+            const mockData = [];
+            const today = new Date();
+            
+            // 生成最近3天的数据
+            for (let i = 0; i < 3; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // 每天生成5-8条新闻
+                const dailyCount = 5 + Math.floor(Math.random() * 4);
+                for (let j = 0; j < dailyCount; j++) {
+                    const hour = 9 + Math.floor(Math.random() * 6); // 9:00-15:00
+                    const minute = Math.floor(Math.random() * 60);
+                    const second = Math.floor(Math.random() * 60);
+                    const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+                    
+                    const titleIndex = Math.floor(Math.random() * mockTitles.length);
+                    const sourceIndex = Math.floor(Math.random() * sources.length);
+                    const isHighlight = Math.random() > 0.7; // 30%的概率标记为重要
+                    
+                    mockData.push({
+                        id: `mock_${dateStr}_${j}`,
+                        time: timeStr,
+                        title: mockTitles[titleIndex],
+                        content: mockContent[titleIndex],
+                        source: sources[sourceIndex],
+                        highlight: isHighlight,
+                        date: `${dateStr} ${timeStr}`,
+                        dateOnly: dateStr
+                    });
+                }
+            }
+            
+            return mockData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // 按日期分组渲染新闻
+        function renderNewsByDate(newsArray) {
+            const newsList = document.getElementById('news-list');
+            
+            if (newsArray.length === 0) {
+                newsList.innerHTML = '<div class="loading">暂无相关新闻</div>';
+                return;
+            }
+            
+            // 按日期分组
+            const groupedNews = {};
+            newsArray.forEach(news => {
+                const date = news.dateOnly;
+                if (!groupedNews[date]) {
+                    groupedNews[date] = [];
+                }
+                groupedNews[date].push(news);
+            });
+            
+            // 生成HTML
+            let html = '';
+            Object.keys(groupedNews).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+                html += `
+                    <div class="date-group">
+                        <div class="date-header">${date}</div>
+                        ${groupedNews[date].map(news => `
+                            <li class="news-item ${news.highlight ? 'news-highlight' : ''}" 
+                                onclick="toggleExpand(this)">
+                                <div class="news-date-div">
+                                    <div class="news-date-txt">${news.time}</div>
+                                </div>
+                                <div class="news-cont">
+                                    <div class="news-title-container">
+                                        <span class="news-title">${news.title}</span>
+                                        <span class="news-src">${news.source}</span>
+                                    </div>
+                                    <div class="news-summary">${news.content}</div>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            newsList.innerHTML = html;
+        }
+
+        // 切换展开/收起
+        function toggleExpand(element) {
+            const isExpanded = element.classList.contains('expanded');
+            
+            // 先收起所有已展开的项目
+            document.querySelectorAll('.news-item.expanded').forEach(item => {
+                item.classList.remove('expanded');
+            });
+            
+            // 如果点击的不是当前已展开的项目，则展开它
+            if (!isExpanded) {
+                element.classList.add('expanded');
+            }
+        }
+
+        // 过滤新闻
+        function filterNews() {
+            const source = document.getElementById('source-filter').value;
+            const importance = document.getElementById('importance-filter').value;
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredNews = allNews.filter(news => {
+                // 来源过滤
+                if (source !== 'all' && news.source !== source) return false;
+                
+                // 重要性过滤
+                if (importance === 'highlight' && !news.highlight) return false;
+                if (importance === 'normal' && news.highlight) return false;
+                
+                // 搜索过滤
+                if (searchText && !news.title.toLowerCase().includes(searchText)) return false;
+                
+                return true;
+            });
+            
+            currentNews = filteredNews;
+            renderNewsByDate(filteredNews);
+        }
+
+        // 搜索新闻
+        function searchNews() {
+            filterNews();
+        }
+
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            filterNews();
+        }
+
+        // 手动刷新
+        async function refreshNews() {
+            try {
+                await loadNewsFromAPI();
+                updateTime();
+                alert('新闻已刷新！');
+            } catch (error) {
+                alert('刷新失败，请检查API服务');
+            }
+        }
+
+        // 切换自动刷新
+        function toggleAutoRefresh() {
+            const checkbox = document.getElementById('auto-refresh');
+            const statusSpan = document.getElementById('refresh-status');
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(refreshNews, 30000);
+                statusSpan.textContent = '自动刷新: 开';
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                statusSpan.textContent = '自动刷新: 关';
+            }
+        }
+
+        // 导出数据
+        function exportData() {
+            const dataStr = JSON.stringify(currentNews, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `news_data_${new Date().getTime()}.json`;
+            link.click();
+            
+            alert('数据导出成功！');
+        }
+
+        // 从API加载所有来源（带模拟数据回退）
+        async function loadSourcesFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/news/sources`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const sourceSelect = document.getElementById('source-filter');
+                    // 清空现有选项（保留"全部来源"）
+                    while (sourceSelect.children.length > 1) {
+                        sourceSelect.removeChild(sourceSelect.lastChild);
+                    }
+                    
+                    // 添加所有来源选项
+                    result.data.forEach(sourceInfo => {
+                        const option = document.createElement('option');
+                        option.value = sourceInfo.source;
+                        option.textContent = sourceInfo.source;
+                        sourceSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载来源数据失败，使用模拟来源:', error);
+                // 使用模拟来源数据
+                const mockSources = [
+                    { source: '财联社' },
+                    { source: '格隆汇' },
+                    { source: '上交所' },
+                    { source: '深交所' },
+                    { source: '智通财经' }
+                ];
+                
+                const sourceSelect = document.getElementById('source-filter');
+                // 清空现有选项（保留"全部来源"）
+                while (sourceSelect.children.length > 1) {
+                    sourceSelect.removeChild(sourceSelect.lastChild);
+                }
+                
+                // 添加模拟来源选项
+                mockSources.forEach(sourceInfo => {
+                    const option = document.createElement('option');
+                    option.value = sourceInfo.source;
+                    option.textContent = sourceInfo.source;
+                    sourceSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 搜索API数据
+        async function searchAPINews(keyword) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/news/search?q=${encodeURIComponent(keyword)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    return result.data.map(item => ({
+                        id: item.id,
+                        time: item.issue_date ? item.issue_date.split(' ')[1] : '--:--:--',
+                        title: item.title || '无标题',
+                        content: item.summary || item.title || '无内容',
+                        source: item.source || '未知来源',
+                        highlight: item.mark_id === 1,
+                        date: item.issue_date || '未知时间'
+                    }));
+                }
+                return [];
+            } catch (error) {
+                console.error('搜索新闻失败:', error);
+                return [];
+            }
+        }
+
+        // 显示设置
+        function showSettings() {
+            alert('设置功能开发中...');
+        }
+
+        // 更新时间
+        function updateTime() {
+            document.getElementById('update-time').textContent = 
+                new Date().toLocaleString('zh-CN');
+        }
+
+        // 按日期过滤新闻
+        function filterByDate() {
+            const dateInput = document.getElementById('date-selector');
+            const selectedDate = dateInput.value;
+            
+            if (!selectedDate) {
+                currentNews = allNews;
+            } else {
+                currentNews = allNews.filter(news => news.dateOnly === selectedDate);
+            }
+            
+            renderNewsByDate(currentNews);
+        }
+
+        // 跳转到今日最新行情
+        function goToToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date-selector').value = today;
+            
+            // 过滤出今日新闻
+            const todayNews = allNews.filter(news => news.dateOnly === today);
+            
+            if (todayNews.length > 0) {
+                currentNews = todayNews;
+                renderNewsByDate(currentNews);
+                
+                // 滚动到页面顶部
+                window.scrollTo(0, 0);
+                alert(`已跳转到今日最新行情，共${todayNews.length}条新闻`);
+            } else {
+                alert('今日暂无新闻数据');
+            }
+        }
+
+        // 设置无限滚动
+        function setupInfiniteScroll() {
+            window.addEventListener('scroll', () => {
+                if (isLoading || !hasMoreData) return;
+                
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                
+                // 当滚动到距离底部100px时加载更多
+                if (scrollTop + windowHeight >= documentHeight - 100) {
+                    loadMoreNews();
+                }
+            });
+        }
+
+        // 加载更多新闻
+        async function loadMoreNews() {
+            if (isLoading || !hasMoreData) return;
+            
+            isLoading = true;
+            document.getElementById('loading-more').style.display = 'block';
+            
+            try {
+                // 模拟加载延迟
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // 这里可以添加实际加载更多数据的逻辑
+                // 目前一次性加载所有数据，所以显示无更多数据
+                hasMoreData = false;
+                document.getElementById('no-more-data').style.display = 'block';
+                document.getElementById('loading-more').style.display = 'none';
+                
+            } catch (error) {
+                console.error('加载更多新闻失败:', error);
+                document.getElementById('loading-more').style.display = 'none';
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

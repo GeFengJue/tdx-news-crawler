@@ -1,0 +1,49 @@
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 数据库文件（GitHub Actions会自动生成）
+*.db
+*.sqlite
+*.sqlite3
+
+# 数据导出文件（GitHub Actions会自动生成）
+*.csv
+*.xlsx
+
+# 日志文件
+*.log
+logs/
+
+# 环境变量
+.env
+.env.local
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+
+# 大型文件
+*.zip
+*.tar.gz
+
+# 测试数据文件
+test_*
+mock_*
+response_*.txt
+form_response_*.txt
+json_response_*.txt
+
+# 历史开发文件（保留核心文件即可）
+要闻直播*.html
+real_*.db
+f12_*.db
+tdx_*_data.db
+news_data.db
+realtime_news.db
