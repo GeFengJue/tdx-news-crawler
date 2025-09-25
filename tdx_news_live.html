@@ -359,7 +359,7 @@
         // 数据源配置
         const DATA_SOURCE_TYPE = 'github-pages'; // 'local-api' 或 'github-pages'
         const API_BASE_URL = 'http://127.0.0.1:5000/api';
-        const JSON_DATA_URL = './latest_news.json';
+        const JSON_DATA_URL = './latest_news.json?_t=' + Date.now();
         let allNews = [];
         let currentNews = [];
         let autoRefreshInterval = null;
@@ -622,11 +622,36 @@
         // 手动刷新
         async function refreshNews() {
             try {
-                await loadNewsFromAPI();
-                updateTime();
-                alert('新闻已刷新！');
+                // 强制刷新缓存：重新设置JSON数据URL的时间戳
+                const jsonDataUrl = './latest_news.json?_t=' + Date.now();
+                const response = await fetch(jsonDataUrl);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // 转换JSON数据格式
+                    allNews = result.data.map(item => ({
+                        id: item.id,
+                        time: item.time || '--:--:--',
+                        title: item.title || '无标题',
+                        content: item.content || item.title || '无内容',
+                        source: item.source || '未知来源',
+                        highlight: item.highlight || false,
+                        date: item.date || '未知时间',
+                        dateOnly: item.date ? item.date.split(' ')[0] : '未知日期'
+                    }));
+                    
+                    // 按日期排序（最新的在前）
+                    allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    currentNews = allNews;
+                    renderNewsByDate(currentNews);
+                    updateTime();
+                    alert('新闻已刷新！');
+                } else {
+                    alert('刷新失败：数据格式错误');
+                }
             } catch (error) {
-                alert('刷新失败，请检查API服务');
+                alert('刷新失败，请检查网络连接');
             }
         }
 
